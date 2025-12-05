@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon, Play } from 'lucide-react';
 import BuyerNavbar from './components/BuyerNavbar';
 import HeroBanner from './components/HeroBanner';
 import FeatureIcons from './components/FeatureIcons';
 import CategoryCard from './components/CategoryCard';
+import { dailyDiscoverProducts } from '../../data/dailyDiscoverProducts';
 
 // Payment Methods
 import spayImg from '../../assets/PAYMENTS/buyer-spay.png';
@@ -146,49 +147,141 @@ const BuyerLandingPage: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-            {[...Array(12)].map((_, item) => {
-              // Simulating database connection - some products have images, some don't
-              const hasImage = item % 3 !== 0; // Every 3rd product will show placeholder
-              
-              return (
-                <Link
-                  to={`/product/${item + 1}`}
-                  key={item}
-                  className="bg-white border border-gray-200 hover:shadow-md transition-all cursor-pointer"
-                >
-                  <div className="aspect-square bg-gray-50 flex items-center justify-center">
-                    {hasImage ? (
-                      <span className="text-gray-300 text-5xl">
-                        {['👕', '📱', '👟', '💄', '🎧', '⌚'][item % 6]}
+            {dailyDiscoverProducts.map((product) => (
+              <Link
+                to={`/product/${product.id}`}
+                key={product.id}
+                className="bg-white border border-gray-200 hover:shadow-lg transition-all cursor-pointer group flex flex-col"
+              >
+                {/* Product Image */}
+                <div className="relative aspect-square bg-gray-50 overflow-hidden">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                    <span className="text-5xl opacity-50">
+                      {product.image}
+                    </span>
+                  </div>
+                  
+                  {/* Discount Badge */}
+                  {product.discount && (
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                      -{product.discount}%
+                    </div>
+                  )}
+                  
+                  {/* Bottom Left Badges */}
+                  <div className="absolute bottom-2 left-2 flex flex-col gap-1">
+                    {product.badges.some(b => b.includes('Sulit Deal')) && (
+                      <span className="bg-orange-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+                        {product.badges.find(b => b.includes('Sulit Deal'))}
                       </span>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <ImageIcon size={48} className="text-gray-300" />
-                        <span className="text-xs text-gray-400 text-center px-2">Missing Image</span>
-                      </div>
+                    )}
+                    {product.badges.some(b => b.includes('% off') && !b.includes('Sulit Deal')) && (
+                      <span className="bg-orange-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+                        {product.badges.find(b => b.includes('% off') && !b.includes('Sulit Deal'))}
+                      </span>
+                    )}
+                    {product.badges.some(b => b.includes('12.12 SALE')) && !product.badges.some(b => b.includes('Sulit Deal')) && (
+                      <span className="bg-pink-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+                        {product.badges.find(b => b.includes('12.12 SALE'))}
+                      </span>
+                    )}
+                    {product.badges.some(b => b.includes('Damaged Full Refund')) && (
+                      <span className="bg-red-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
+                        Damaged Full Refund
+                      </span>
                     )}
                   </div>
-                  <div className="p-2">
-                    <div className="text-xs text-gray-700 line-clamp-2 mb-1 h-8">
-                      Product Name Here Sample Text
+                  
+                  {/* Video Play Icon */}
+                  {product.hasVideo && (
+                    <div className="absolute bottom-2 left-2 bg-black/60 rounded-full p-1.5">
+                      <Play size={14} className="text-white" fill="white" />
                     </div>
-                    <div className="flex items-center gap-1 mb-1">
-                      <span className="text-shopee-orange text-sm font-medium">₱{(Math.random() * 1000 + 100).toFixed(0)}</span>
+                  )}
+                  
+                  {/* Badges */}
+                  <div className="absolute top-2 left-2 flex flex-col gap-1">
+                    {product.badges.includes('Preferred') && (
+                      <span className="bg-yellow-400 text-yellow-900 text-[10px] font-semibold px-1.5 py-0.5 rounded">Preferred</span>
+                    )}
+                    {product.badges.includes('✓Choice') && (
+                      <span className="bg-blue-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">✓Choice</span>
+                    )}
+                    {product.badges.includes('Selling Fast') && (
+                      <span className="bg-red-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">Selling Fast</span>
+                    )}
+                    {product.badges.includes('Sulit Deal') && (
+                      <span className="bg-orange-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">Sulit Deal</span>
+                    )}
+                    {product.badges.includes('MEGA DISCOUNT') && (
+                      <span className="bg-purple-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">MEGA DISCOUNT</span>
+                    )}
+                    {product.badges.includes('CASHBACK') && (
+                      <span className="bg-green-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">CASHBACK</span>
+                    )}
+                    {product.badges.includes('12.12 SALE') && (
+                      <span className="bg-pink-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">12.12 SALE</span>
+                    )}
+                  </div>
+                  
+                  {/* Voucher Badge */}
+                  {product.voucher && (
+                    <div className="absolute bottom-2 right-2 bg-blue-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap">
+                      {product.voucher}
                     </div>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>⭐ 4.8</span>
-                      <span>{Math.floor(Math.random() * 1000)}+ sold</span>
+                  )}
+                </div>
+
+                {/* Product Info */}
+                <div className="p-2 flex-1 flex flex-col">
+                  {/* Product Title */}
+                  <div className="text-[11px] text-gray-800 line-clamp-2 mb-1.5 min-h-[2.5rem]">
+                    {product.name}
+                  </div>
+                  
+                  {/* Choice Text */}
+                  {product.choiceText && (
+                    <div className="text-[10px] text-blue-600 font-semibold mb-1">
+                      {product.choiceText}
+                    </div>
+                  )}
+                  
+                  {/* Price */}
+                  <div className="mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-shopee-orange font-bold text-sm">₱{product.price}</span>
+                      {product.originalPrice && (
+                        <span className="text-gray-400 text-[10px] line-through">₱{product.originalPrice}</span>
+                      )}
                     </div>
                   </div>
-                </Link>
-              );
-            })}
+                  
+                  {/* Badges Row */}
+                  <div className="flex flex-wrap gap-1 mb-1.5">
+                    {product.badges.includes('SPayLater') && (
+                      <div className="flex items-center gap-0.5 bg-blue-50 border border-blue-200 rounded px-1 py-0.5">
+                        <span className="text-[9px] text-blue-700 font-semibold">SPayLater</span>
+                        <span className="text-[8px] text-blue-600 font-medium">0% INTEREST</span>
+                      </div>
+                    )}
+                    {product.badges.includes('UNLI FREE SHIPPING') && (
+                      <span className="text-[9px] bg-green-100 text-green-700 font-semibold px-1 py-0.5 rounded whitespace-nowrap">UNLI FREE SHIPPING</span>
+                    )}
+                  </div>
+                  
+                  {/* Sold Count */}
+                  <div className="text-[10px] text-gray-500 mt-auto">
+                    {product.sold >= 10000 ? '10K+' : product.sold}+ sold
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
 
-          {/* Login To See More Button */}
+          {/* See More Button */}
           <div className="mt-8 text-center">
-            <button className="border border-gray-300 px-12 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-sm">
-              Login To See More
+            <button className="bg-gray-200 text-gray-700 px-12 py-3 hover:bg-gray-300 transition-colors text-sm rounded">
+              See More
             </button>
             <div className="h-1 bg-shopee-orange w-full mt-8"></div>
           </div>

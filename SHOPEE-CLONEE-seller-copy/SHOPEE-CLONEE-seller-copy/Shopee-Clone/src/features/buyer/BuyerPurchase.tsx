@@ -1,135 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Package, Truck, CheckCircle, XCircle, RotateCw } from 'lucide-react';
 import BuyerNavbar from './components/BuyerNavbar';
 import BuyerFooter from './components/BuyerFooter';
-
-type OrderStatus = 'all' | 'to-pay' | 'to-ship' | 'to-receive' | 'completed' | 'cancelled' | 'return-refund';
-
-interface Order {
-  id: string;
-  product: {
-    name: string;
-    image: string;
-  };
-  status: OrderStatus;
-  price: number;
-  quantity: number;
-  totalPrice: number;
-  date: string;
-}
-
-const mockOrders: Order[] = [
-  {
-    id: 'ORD001',
-    product: { name: 'Premium Wireless Headphones', image: '🎧' },
-    status: 'to-pay',
-    price: 1200,
-    quantity: 1,
-    totalPrice: 1200,
-    date: '2025-12-05',
-  },
-  {
-    id: 'ORD002',
-    product: { name: 'Cotton T-Shirt Blue', image: '👕' },
-    status: 'to-ship',
-    price: 350,
-    quantity: 2,
-    totalPrice: 700,
-    date: '2025-12-04',
-  },
-  {
-    id: 'ORD003',
-    product: { name: 'Running Shoes', image: '👟' },
-    status: 'to-receive',
-    price: 2500,
-    quantity: 1,
-    totalPrice: 2500,
-    date: '2025-12-03',
-  },
-  {
-    id: 'ORD004',
-    product: { name: 'Smart Watch', image: '⌚' },
-    status: 'completed',
-    price: 3999,
-    quantity: 1,
-    totalPrice: 3999,
-    date: '2025-12-02',
-  },
-  {
-    id: 'ORD005',
-    product: { name: 'Makeup Brush Set', image: '💄' },
-    status: 'completed',
-    price: 899,
-    quantity: 1,
-    totalPrice: 899,
-    date: '2025-12-01',
-  },
-  {
-    id: 'ORD006',
-    product: { name: 'Phone Case', image: '📱' },
-    status: 'cancelled',
-    price: 299,
-    quantity: 1,
-    totalPrice: 299,
-    date: '2025-11-30',
-  },
-  {
-    id: 'ORD007',
-    product: { name: 'Laptop Stand', image: '💻' },
-    status: 'return-refund',
-    price: 1500,
-    quantity: 1,
-    totalPrice: 1500,
-    date: '2025-11-29',
-  },
-  {
-    id: 'ORD008',
-    product: { name: 'USB-C Cable', image: '🔌' },
-    status: 'completed',
-    price: 199,
-    quantity: 3,
-    totalPrice: 597,
-    date: '2025-11-28',
-  },
-  {
-    id: 'ORD009',
-    product: { name: 'Camera Tripod', image: '📷' },
-    status: 'to-receive',
-    price: 2200,
-    quantity: 1,
-    totalPrice: 2200,
-    date: '2025-11-27',
-  },
-  {
-    id: 'ORD010',
-    product: { name: 'Portable Charger', image: '⚡' },
-    status: 'completed',
-    price: 1800,
-    quantity: 1,
-    totalPrice: 1800,
-    date: '2025-11-26',
-  },
-  {
-    id: 'ORD011',
-    product: { name: 'Bluetooth Speaker', image: '🔊' },
-    status: 'to-pay',
-    price: 1500,
-    quantity: 1,
-    totalPrice: 1500,
-    date: '2025-11-25',
-  },
-  {
-    id: 'ORD012',
-    product: { name: 'Screen Protector', image: '🛡️' },
-    status: 'completed',
-    price: 150,
-    quantity: 5,
-    totalPrice: 750,
-    date: '2025-11-24',
-  },
-];
+import { useOrders, OrderStatus } from '../../contexts/OrderContext';
 
 const BuyerPurchase: React.FC = () => {
+  const { orders, updateOrderStatus } = useOrders();
   const [activeTab, setActiveTab] = useState<OrderStatus>('all');
 
   React.useEffect(() => {
@@ -158,8 +34,23 @@ const BuyerPurchase: React.FC = () => {
   ];
 
   const filteredOrders = activeTab === 'all' 
-    ? mockOrders 
-    : mockOrders.filter(order => order.status === activeTab);
+    ? orders 
+    : orders.filter(order => order.status === activeTab);
+
+  const handlePayNow = (orderId: string) => {
+    // Payment is processed by seller, so we just move to 'to-ship'
+    updateOrderStatus(orderId, 'to-ship');
+  };
+
+  const handleRiderPickup = (orderId: string) => {
+    // Simulate rider pickup - move from 'to-ship' to 'to-receive'
+    updateOrderStatus(orderId, 'to-receive');
+  };
+
+  const handleConfirmDelivery = (orderId: string) => {
+    // Simulate delivery confirmation - move from 'to-receive' to 'completed'
+    updateOrderStatus(orderId, 'completed');
+  };
 
   const getStatusIcon = (status: OrderStatus) => {
     switch (status) {
@@ -241,14 +132,23 @@ const BuyerPurchase: React.FC = () => {
                   <div className="flex items-start justify-between gap-6">
                     {/* Product Image */}
                     <div className="flex-shrink-0">
-                      <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center text-4xl">
-                        {order.product.image}
+                      <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                        {order.product.image.startsWith('http') || order.product.image.startsWith('/') ? (
+                          <img src={order.product.image} alt={order.product.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-4xl">{order.product.image}</span>
+                        )}
                       </div>
                     </div>
 
                     {/* Product Details */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-800 truncate mb-2">{order.product.name}</h3>
+                      <h3 className="font-medium text-gray-800 truncate mb-2">{order.product.fullName || order.product.name}</h3>
+                      {order.paymentMethod && (
+                        <p className="text-xs text-gray-500 mb-1">
+                          Payment: {order.paymentMethod === 'cash' ? 'Cash on Delivery' : 'Online Payment'}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-500 mb-2">Order ID: {order.id}</p>
                       <p className="text-sm text-gray-500">Order Date: {order.date}</p>
                       <p className="text-sm text-gray-600 mt-2">
@@ -273,13 +173,27 @@ const BuyerPurchase: React.FC = () => {
                     {/* Action Buttons */}
                     <div className="flex-shrink-0 flex flex-col gap-2">
                       {order.status === 'to-pay' && (
-                        <button className="px-6 py-2 bg-shopee-orange text-white rounded text-sm font-medium hover:bg-shopee-orange-dark transition-colors">
+                        <button 
+                          onClick={() => handlePayNow(order.id)}
+                          className="px-6 py-2 bg-shopee-orange text-white rounded text-sm font-medium hover:bg-shopee-orange-dark transition-colors"
+                        >
                           Pay Now
                         </button>
                       )}
+                      {order.status === 'to-ship' && (
+                        <button 
+                          onClick={() => handleRiderPickup(order.id)}
+                          className="px-6 py-2 bg-blue-500 text-white rounded text-sm font-medium hover:bg-blue-600 transition-colors"
+                        >
+                          Rider Picked Up
+                        </button>
+                      )}
                       {order.status === 'to-receive' && (
-                        <button className="px-6 py-2 bg-shopee-orange text-white rounded text-sm font-medium hover:bg-shopee-orange-dark transition-colors">
-                          Received
+                        <button 
+                          onClick={() => handleConfirmDelivery(order.id)}
+                          className="px-6 py-2 bg-shopee-orange text-white rounded text-sm font-medium hover:bg-shopee-orange-dark transition-colors"
+                        >
+                          Confirm Delivery
                         </button>
                       )}
                       {order.status === 'completed' && (

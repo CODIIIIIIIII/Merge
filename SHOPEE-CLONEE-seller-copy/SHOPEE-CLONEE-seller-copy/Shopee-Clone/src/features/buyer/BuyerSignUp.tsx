@@ -182,7 +182,7 @@ const BuyerSignUp: React.FC = () => {
 
                   <div className="text-center text-sm text-gray-600 mt-4">
                     Have an account?{' '}
-                    <Link to="/buyer-login" className="text-shopee-orange hover:underline font-medium">Log In</Link>
+                    <Link to="/login" className="text-shopee-orange hover:underline font-medium">Log In</Link>
                   </div>
                 </form>
               </div>
